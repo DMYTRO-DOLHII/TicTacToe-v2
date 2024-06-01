@@ -1,0 +1,39 @@
+<!-- index.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Tic Tac Toe</title>
+	<link rel="stylesheet" href="/styles.css">
+</head>
+
+<body>
+	<div class="container">
+		<div class="left">
+			<input type="text" id="gameId" placeholder="Enter Game ID">
+			<button id="joinBtn">Join</button>
+		</div>
+		<div class="separator"></div>
+		<div class="right">
+			<button id="newGameBtn">New Game</button>
+		</div>
+	</div>
+	<script src="/scripts.js"></script>
+	<script>
+		// Connect to WebSocket server when the page is loaded
+		window.onload = function () {
+			const socket = new WebSocket('ws://localhost:3000'); // Change the URL to your WebSocket server
+			socket.onopen = function () {
+				console.log('WebSocket connection established.');
+				// Here you can send any initial messages to the server if needed
+			};
+			socket.onerror = function (error) {
+				console.error('WebSocket error:', error);
+			};
+		};
+	</script>
+</body>
+
+</html>
