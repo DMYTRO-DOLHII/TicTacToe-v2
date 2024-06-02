@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-	const socket = new WebSocket('ws://localhost:10000');
+	const socket = new WebSocket('wss://localhost:10000');
 	let userId = null;
 	let currentPlayer = null;
 
