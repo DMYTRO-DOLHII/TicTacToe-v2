@@ -42,7 +42,7 @@ h1 {
 }
 
 .left input[type="text"] {
-	width: calc(100% - 40px);
+	width: calc(100% - 20px);
 	padding: 10px;
 	margin-bottom: 10px;
 	border: 1px solid white;
@@ -78,38 +78,28 @@ button:hover {
 }
 
 .separator {
-	height: 50%;
-	width: 3px;
+	height: 70%;
+	width: 2px;
 	background-color: rgba(255, 255, 255, 0.5);
 }
 
-
-/* Game session */
-.board {
-	display: grid;
-	grid-template-columns: repeat(3, 100px);
-	grid-template-rows: repeat(3, 100px);
-	gap: 5px;
-}
-
-.row {
-	display: flex;
-}
-
-.cell {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	width: 100px;
-	height: 100px;
-	background-color: #f0f0f0;
-	/* Light gray background */
-	border: 1px solid #ccc;
-	/* Light gray border */
-	cursor: pointer;
-}
-
-.cell:hover {
-	background-color: #ddd;
-	/* Darker gray background on hover */
-}
+/* Media query for smaller screens */
+@media screen and (max-width: 600px) {
+	.container {
+	  flex-direction: column; /* Change flex direction to stack items vertically */
+	  align-items: center; /* Allow items to stretch to full width */
+	}
+	
+	.left,
+	.right {
+	  width: 80%; /* Set width to full width with some padding */
+	  margin-bottom: 20px; /* Add some space between sections */
+	}
+	
+	.separator {
+	  height: 2px; /* Adjust height for horizontal separator */
+	  width: 70%; /* Set width to full */
+	  background-color: rgba(255, 255, 255, 0.5);
+	  margin: 20px 0; /* Add margin to separate sections */
+	}
+  }

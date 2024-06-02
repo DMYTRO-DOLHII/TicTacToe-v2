@@ -21,6 +21,16 @@ class Session {
 		this.players.set(playerId, websocket);
 	}
 
+	// Delete player associated with a WebSocket
+    deletePlayer(websocket) {
+        for (const [playerId, ws] of this.players.entries()) {
+            if (ws === websocket) {
+                return this.players.delete(playerId);
+            }
+        }
+        return false; // Return false if player not found
+    }
+
 	// Get current player's turn
 	getCurrentPlayer() {
 		return this.currentPlayer;
@@ -136,4 +146,13 @@ function getSession(sessionId) {
 	return sessions.get(sessionId);
 }
 
-module.exports = { createNewSession, getSession };
+function findSessionSortWebsocket(websocket) {
+	for (const [sessionId, currentSession] of sessions.entries()) {
+		if (currentSession.players.has(websocket)) {
+			return currentSession;
+		}
+	}
+	return null; // Return null if no session found for the given WebSocket
+}
+
+module.exports = { createNewSession, getSession, findSessionSortWebsocket };

@@ -24,7 +24,7 @@ app.get('/', (req, res) => {
 
 // Handle /new-game POST
 app.post('/new-game', (req, res) => {
-	const sessionId = generate.generateComplexUUID(6); // Generate a unique player ID
+	const sessionId = generate.generateComplexUUID(6); // Generate a unique game session ID
 
 	session.createNewSession(sessionId);
 
@@ -132,8 +132,40 @@ wss.on('connection', (ws) => {
 					});
 				}
 			}
+
+			if (data.type === 'restartGame') {
+				const { sessionId } = data;
+				const currentSession = session.getSession(sessionId);
+
+				// Check if the session exists
+				if (!currentSession) {
+					ws.send(JSON.stringify({ type: 'sessionNotFound' }));
+					return;
+				}
+
+				// Reset the game state
+				currentSession.newGame();
+
+				// Broadcast the new game state to all players
+				currentSession.getPlayers().forEach((player) => {
+					player.send(JSON.stringify({ type: 'gameStart', currentPlayer: currentSession.getCurrentPlayer() }));
+				});
+			}
 		} catch (error) {
 			console.error('Failed to parse message:', error);
+		}
+	});
+
+	ws.on('close', () => {
+		const sessionToRemoveFrom = session.findSessionSortWebsocket(ws);
+
+		if (sessionToRemoveFrom) {
+			sessionToRemoveFrom.deletePlayer(ws);
+
+			// Notify the remaining player that they are waiting for an opponent
+			sessionToRemoveFrom.getPlayers().forEach(player => {
+				player.send(JSON.stringify({ type: 'opponentLeft' }));
+			});
 		}
 	});
 });

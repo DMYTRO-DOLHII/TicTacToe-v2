@@ -33,9 +33,16 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		}
 
+		if (message.type === 'opponentLeft') {
+			document.getElementById('opponentInfo').innerText = 'Waiting for opponent...';
+			// Additional code if needed...
+		}
+
 		if (message.type === 'gameStart') {
 			currentPlayer = message.currentPlayer;
 			updateTurnIndicator();
+			document.getElementById('restartButton').style.display = 'none';
+			clearBoard();
 		}
 
 		if (message.type === 'gameUpdate') {
@@ -44,12 +51,12 @@ document.addEventListener('DOMContentLoaded', () => {
 			updateTurnIndicator();
 
 			// Check for winner or draw
-			if (message.winner) {
-				document.getElementById('turn').innerText = `${message.winner} wins!`;
-				disableBoard();
-			} else if (message.isDraw) {
+			if (message.isDraw) {
 				document.getElementById('turn').innerText = 'It\'s a draw!';
-				disableBoard();
+				document.getElementById('restartButton').style.display = 'block';
+			} else if (message.winner) {
+				document.getElementById('turn').innerText = `${message.winner} wins!`;
+				document.getElementById('restartButton').style.display = 'block';
 			}
 		}
 	};
@@ -94,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		copyButton.innerText = 'Copied!';
 		setTimeout(() => {
 			copyButton.innerText = 'Copy';
-		}, 2000);
+		}, 1000);
 	});
 
 	document.getElementById('returnHome').addEventListener('click', () => {
@@ -137,12 +144,23 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 	}
 
-	function resetGame() {
-		// Clear the board
+	function clearBoard() {
+		const cells = document.querySelectorAll('.cell');
 		cells.forEach(cell => {
-			cell.innerText = '';
+			cell.innerText = ''; // Clear the inner text of each cell
 		});
-		document.getElementById('turn').innerText = '';
-		document.getElementById('opponentInfo').innerText = 'Waiting for opponent...';
 	}
+
+
+	// Function to handle restart button click
+	document.getElementById('restartButton').addEventListener('click', () => {
+		// Hide restart button
+		document.getElementById('restartButton').style.display = 'none';
+		// Send restart game message to the server
+		const restartMessage = {
+			type: 'restartGame',
+			sessionId: window.location.pathname.split('/')[1]
+		};
+		socket.send(JSON.stringify(restartMessage));
+	});
 });
