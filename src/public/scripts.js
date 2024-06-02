@@ -11,8 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
 			sessionId: window.location.pathname.split('/')[1]
 		};
 
-		console.log(joinSessionMessage);
-
 		socket.send(JSON.stringify(joinSessionMessage));
 	};
 
@@ -45,12 +43,13 @@ document.addEventListener('DOMContentLoaded', () => {
 			updateBoard(message.board);
 			updateTurnIndicator();
 
+			// Check for winner or draw
 			if (message.winner) {
-				alert(`${message.winner} wins!`);
-				resetGame();
+				document.getElementById('turn').innerText = `${message.winner} wins!`;
+				disableBoard();
 			} else if (message.isDraw) {
-				alert('It\'s a draw!');
-				resetGame();
+				document.getElementById('turn').innerText = 'It\'s a draw!';
+				disableBoard();
 			}
 		}
 	};
@@ -124,15 +123,17 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	function updateTurnIndicator() {
-		console.log(currentPlayer);
 		const turn = currentPlayer === userId ? 'Your turn' : 'Your opponent\'s turn';
 		document.getElementById('turn').innerText = turn;
 	}
 
 	function updateBoard(board) {
-		board.forEach((value, index) => {
-			const cell = document.getElementById(`cell-${Math.floor(index / 3)}${index % 3}`);
-			cell.innerText = value ? (value === userId ? 'X' : 'O') : '';
+		const userId = getCookie('userId');
+		board.forEach((row, rowIndex) => {
+			row.forEach((value, colIndex) => {
+				const cell = document.getElementById(`cell-${rowIndex}${colIndex}`);
+				cell.innerText = value ? (value === 'X' ? 'X' : 'O') : '';
+			});
 		});
 	}
 

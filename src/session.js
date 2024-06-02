@@ -5,6 +5,7 @@ class Session {
 		this.sessionId = sessionId;
 		this.players = new Map();
 		this.currentPlayer = null;
+		this.whoStarted = null;
 		this.board = [
 			["", "", ""],
 			["", "", ""],
@@ -46,6 +47,7 @@ class Session {
 		];
 		this.winner = null;
 		this.currentPlayer = this.randomPlayer();
+		this.whoStarted = this.currentPlayer;
 	}
 
 	// Make a move
@@ -54,7 +56,7 @@ class Session {
 
 		const [row, col] = [Math.floor(index / 3), index % 3];
 		if (this.board[row][col] === "") {
-			this.board[row][col] = playerId === this.currentPlayer ? 'X' : 'O';
+			this.board[row][col] = playerId === this.whoStarted ? 'X' : 'O';
 			this.winner = this.checkWinner();
 
 			if (!this.winner) {

@@ -39,6 +39,9 @@ body {
 	/* Light gray border */
 	cursor: pointer;
 	margin: 1px;
+	color: white;
+	font-weight: bold;
+	font-size: 20px;
 }
 
 .cell:hover {

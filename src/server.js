@@ -10,8 +10,6 @@ const wss = new WebSocket.Server({ server });
 const generate = require('./generate');
 const session = require('./session');
 
-const newGameRouter = require('./routes/new-game.routes');
-
 // Set EJS as the view engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '/views'));
@@ -25,7 +23,13 @@ app.get('/', (req, res) => {
 });
 
 // Handle /new-game POST
-app.use('/new-game', newGameRouter);
+app.post('/new-game', (req, res) => {
+	const sessionId = generate.generateComplexUUID(6); // Generate a unique player ID
+
+	session.createNewSession(sessionId);
+
+	res.json({ sessionId });
+});
 
 // Route for game sessions
 app.get('/:sessionId', (req, res) => {
@@ -76,8 +80,6 @@ wss.on('connection', (ws) => {
 				const userId = generate.generateComplexUUID(6);
 				currentSession.addPlayer({ playerId: userId, websocket: ws });
 
-				console.log(`User ID: ${userId} joined session: ${sessionId}`);
-
 				// Send the user their ID and opponent info
 				let opponentId = null;
 				for (let [key, value] of currentSession.getPlayers()) {
@@ -112,26 +114,23 @@ wss.on('connection', (ws) => {
 				const { sessionId, index, playerId } = data;
 				let currentSession = session.getSession(sessionId);
 
-				console.log('------ Geting Data ------');
-				console.log(sessionId, index, playerId);
+				// Make the move if it's the player's turn
+				if (currentSession && currentSession.getCurrentPlayer() === playerId) {
+					currentSession.makeMove(index, playerId);
 
-				// // Make the move if it's the player's turn
-				// if (currentSession && currentSession.getCurrentPlayer() === playerId) {
-				// 	currentSession.makeMove(index, playerId);
+					// Broadcast the updated game state to both players
+					const gameState = {
+						type: 'gameUpdate',
+						board: currentSession.getBoard(),
+						currentPlayer: currentSession.getCurrentPlayer(),
+						winner: currentSession.getWinner(),
+						isDraw: currentSession.isDraw()
+					};
 
-				// 	// Broadcast the updated game state to both players
-				// 	const gameState = {
-				// 		type: 'gameUpdate',
-				// 		board: currentSession.getBoard(),
-				// 		currentPlayer: currentSession.getCurrentPlayer(),
-				// 		winner: currentSession.getWinner(),
-				// 		isDraw: currentSession.isDraw()
-				// 	};
-
-				// 	currentSession.getPlayers().forEach(player => {
-				// 		player.websocket.send(JSON.stringify(gameState));
-				// 	});
-				// }
+					currentSession.getPlayers().forEach(player => {
+						player.send(JSON.stringify(gameState));
+					});
+				}
 			}
 		} catch (error) {
 			console.error('Failed to parse message:', error);
