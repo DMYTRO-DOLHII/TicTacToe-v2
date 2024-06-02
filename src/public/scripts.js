@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-	const socket = new WebSocket(`wss://${process.env.DOMAIN_URL || 'localhost:3000'}`);
+	const socket = new WebSocket('ws://tictactoe-v2.onrender.com');
 	let userId = null;
 	let currentPlayer = null;
 
