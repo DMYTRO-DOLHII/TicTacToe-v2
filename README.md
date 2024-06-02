@@ -2,6 +2,8 @@
 
 This is a simple multiplayer Tic Tac Toe game built using WebSocket technology. Players can join game sessions and play against each other in real-time.
 
+You can check final version here: https://tictactoe-v2.onrender.com
+
 ## Features
 
 - Multiplayer gameplay: Play against another player in real-time.
@@ -35,7 +37,7 @@ cd TicTacToe-v2
 3. Install dependencies:
 
 ```bash
-npm install ws express
+npm install ws express nodemon
 ```
 
 ## Usage
