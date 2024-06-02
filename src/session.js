@@ -3,7 +3,7 @@ let sessions = new Map();
 class Session {
 	constructor(sessionId) {
 		this.sessionId = sessionId;
-		this.players = [];
+		this.players = new Map();
 		this.currentPlayer = null;
 		this.board = [
 			["", "", ""],
@@ -13,10 +13,15 @@ class Session {
 	}
 
 	// Add new player
-	addPlayer(playerId) {
+	addPlayer({ playerId, websocket }) {
 		if (this.players.length == 2) return -1;
 
-		this.players.push(playerId);
+		this.players.set(playerId, websocket);
+	}
+
+	// Get all players
+	getPlayers() {
+		return this.players;
 	}
 
 	// Function to check for a winner

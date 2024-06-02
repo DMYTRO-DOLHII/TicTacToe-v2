@@ -20,19 +20,25 @@
 			<button id="newGameBtn">New Game</button>
 		</div>
 	</div>
-	<script src="/scripts.js"></script>
 	<script>
-		// Connect to WebSocket server when the page is loaded
-		window.onload = function () {
-			const socket = new WebSocket('ws://localhost:3000'); // Change the URL to your WebSocket server
-			socket.onopen = function () {
-				console.log('WebSocket connection established.');
-				// Here you can send any initial messages to the server if needed
-			};
-			socket.onerror = function (error) {
-				console.error('WebSocket error:', error);
-			};
-		};
+		document.getElementById('newGameBtn').addEventListener('click', async () => {
+			try {
+				const response = await fetch('/new-game', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					}
+				});
+				const data = await response.json();
+
+				if (data.sessionId) {
+					// Redirect to the session page
+					window.location.href = `/${data.sessionId}`;
+				}
+			} catch (error) {
+				console.error('Error creating new game:', error);
+			}
+		});
 	</script>
 </body>
 

@@ -1,0 +1,41 @@
+/* session.css */
+
+body {
+	margin: 0;
+	padding: 0;
+	font-family: Arial, sans-serif;
+	background: linear-gradient(to bottom right, #3498db, #9b59b6);
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+
+.container {
+	height: 100vh;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-wrap: wrap;
+}
+
+.row {
+	display: flex;
+}
+
+.cell {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 100px;
+	height: 100px;
+	background-color: transparent;
+	/* Light gray background */
+	border: 1px solid #ccc;
+	/* Light gray border */
+	cursor: pointer;
+	margin: 1px;
+}
+
+.cell:hover {
+	background-color: #ddd;
+	/* Darker gray background on hover */
+}
