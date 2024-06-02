@@ -9,14 +9,20 @@ class Session {
 			["", "", ""],
 			["", "", ""],
 			["", "", ""]
-		]
+		];
+		this.winner = null;
 	}
 
 	// Add new player
 	addPlayer({ playerId, websocket }) {
-		if (this.players.length == 2) return -1;
+		if (this.players.size >= 2) return -1;
 
 		this.players.set(playerId, websocket);
+	}
+
+	// Get current player's turn
+	getCurrentPlayer() {
+		return this.currentPlayer;
 	}
 
 	// Get all players
@@ -24,36 +30,97 @@ class Session {
 		return this.players;
 	}
 
+	// Get random player
+	randomPlayer() {
+		const keysArray = Array.from(this.players.keys());
+		const randomIndex = Math.floor(Math.random() * keysArray.length);
+		return keysArray[randomIndex];
+	}
+
+	// Start new game
+	newGame() {
+		this.board = [
+			["", "", ""],
+			["", "", ""],
+			["", "", ""]
+		];
+		this.winner = null;
+		this.currentPlayer = this.randomPlayer();
+	}
+
+	// Make a move
+	makeMove(index, playerId) {
+		if (this.winner) return; // Ignore moves if the game is already won
+
+		const [row, col] = [Math.floor(index / 3), index % 3];
+		if (this.board[row][col] === "") {
+			this.board[row][col] = playerId === this.currentPlayer ? 'X' : 'O';
+			this.winner = this.checkWinner();
+
+			if (!this.winner) {
+				this.currentPlayer = this.getNextPlayer();
+			}
+		}
+	}
+
+	// Get the next player
+	getNextPlayer() {
+		const keysArray = Array.from(this.players.keys());
+		const currentIndex = keysArray.indexOf(this.currentPlayer);
+		const nextIndex = (currentIndex + 1) % keysArray.length;
+		return keysArray[nextIndex];
+	}
+
 	// Function to check for a winner
 	checkWinner() {
-		// Check rows
-		for (let row = 0; row < 3; row++) {
-			if (this.board[row][0] !== "" && this.board[row][0] === this.board[row][1] && this.board[row][1] === this.board[row][2]) {
-				return this.board[row][0];
+		const winningCombinations = [
+			[[0, 0], [0, 1], [0, 2]],
+			[[1, 0], [1, 1], [1, 2]],
+			[[2, 0], [2, 1], [2, 2]],
+			[[0, 0], [1, 0], [2, 0]],
+			[[0, 1], [1, 1], [2, 1]],
+			[[0, 2], [1, 2], [2, 2]],
+			[[0, 0], [1, 1], [2, 2]],
+			[[0, 2], [1, 1], [2, 0]]
+		];
+
+		for (let combination of winningCombinations) {
+			const [a, b, c] = combination;
+			const [ax, ay] = a;
+			const [bx, by] = b;
+			const [cx, cy] = c;
+
+			if (this.board[ax][ay] !== "" && this.board[ax][ay] === this.board[bx][by] && this.board[bx][by] === this.board[cx][cy]) {
+				return this.board[ax][ay];
 			}
 		}
 
-		// Check columns
-		for (let col = 0; col < 3; col++) {
-			if (this.board[0][col] !== "" && this.board[0][col] === this.board[1][col] && this.board[1][col] === this.board[2][col]) {
-				return this.board[0][col];
-			}
+		// If no winner found and board is full
+		if (this.board.flat().every(cell => cell !== "")) {
+			return 'draw';
 		}
 
-		// Check diagonals
-		if (this.board[0][0] !== "" && this.board[0][0] === this.board[1][1] && this.board[1][1] === this.board[2][2]) {
-			return this.board[0][0];
-		}
-		if (this.board[0][2] !== "" && this.board[0][2] === this.board[1][1] && this.board[1][1] === this.board[2][0]) {
-			return this.board[0][2];
-		}
-
-		// If no winner found
 		return null;
 	}
 
+	// Get board state
+	getBoard() {
+		return this.board;
+	}
+
+	// Check if the session is full
 	isFull() {
-		return this.players.length == 2;
+		return this.players.size === 2;
+	}
+
+	// Get the winner
+	getWinner() {
+		return this.winner;
+	}
+
+	// Check if the game is a draw
+	isDraw() {
+		return this.winner === 'draw';
 	}
 }
 

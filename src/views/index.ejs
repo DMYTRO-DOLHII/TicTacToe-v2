@@ -39,6 +39,15 @@
 				console.error('Error creating new game:', error);
 			}
 		});
+
+		document.getElementById('joinBtn').addEventListener('click', () => {
+			try {
+				const gameId = document.getElementById('gameId').value;
+				window.location.href = `/${gameId}`;
+			} catch (error) {
+				console.error('Error joining the game: ', error);
+			}
+		});
 	</script>
 </body>
 

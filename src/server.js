@@ -1,4 +1,3 @@
-// server.js
 const express = require('express');
 const http = require('http');
 const WebSocket = require('ws');
@@ -8,11 +7,10 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-const generate = require('./generate')
+const generate = require('./generate');
 const session = require('./session');
 
 const newGameRouter = require('./routes/new-game.routes');
-
 
 // Set EJS as the view engine
 app.set('view engine', 'ejs');
@@ -69,7 +67,6 @@ wss.on('connection', (ws) => {
 				}
 
 				// Check if the session is full
-				console.log(currentSession.getPlayers().size)
 				if (currentSession.getPlayers().size >= 2) {
 					ws.send(JSON.stringify({ type: 'sessionIsFull' }));
 					return;
@@ -82,15 +79,59 @@ wss.on('connection', (ws) => {
 				console.log(`User ID: ${userId} joined session: ${sessionId}`);
 
 				// Send the user their ID and opponent info
-				let opponent = null;
+				let opponentId = null;
 				for (let [key, value] of currentSession.getPlayers()) {
 					if (key !== userId) {
-						opponent = key;
+						opponentId = key;
 						break;
 					}
 				}
 
-				ws.send(JSON.stringify({ type: 'joined', userId, opponentId: opponent || null }));
+				if (opponentId) {
+					// Start a new game
+					currentSession.newGame();
+
+					let currentPlayer = currentSession.getCurrentPlayer();
+
+					// Notify both players
+					currentSession.getPlayers().get(opponentId).send(JSON.stringify(
+						{ type: 'joined', userId: opponentId, opponentId: userId }
+					));
+					currentSession.getPlayers().get(userId).send(JSON.stringify(
+						{ type: 'joined', userId: userId, opponentId: opponentId }
+					));
+
+					// Send gameStart message to both players
+					const gameStartMessage = JSON.stringify({ type: 'gameStart', currentPlayer: currentPlayer });
+					currentSession.getPlayers().get(opponentId).send(gameStartMessage);
+					currentSession.getPlayers().get(userId).send(gameStartMessage);
+				}
+			}
+
+			if (data.type === 'makeMove') {
+				const { sessionId, index, playerId } = data;
+				let currentSession = session.getSession(sessionId);
+
+				console.log('------ Geting Data ------');
+				console.log(sessionId, index, playerId);
+
+				// // Make the move if it's the player's turn
+				// if (currentSession && currentSession.getCurrentPlayer() === playerId) {
+				// 	currentSession.makeMove(index, playerId);
+
+				// 	// Broadcast the updated game state to both players
+				// 	const gameState = {
+				// 		type: 'gameUpdate',
+				// 		board: currentSession.getBoard(),
+				// 		currentPlayer: currentSession.getCurrentPlayer(),
+				// 		winner: currentSession.getWinner(),
+				// 		isDraw: currentSession.isDraw()
+				// 	};
+
+				// 	currentSession.getPlayers().forEach(player => {
+				// 		player.websocket.send(JSON.stringify(gameState));
+				// 	});
+				// }
 			}
 		} catch (error) {
 			console.error('Failed to parse message:', error);
